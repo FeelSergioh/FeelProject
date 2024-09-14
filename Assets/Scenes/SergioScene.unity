@@ -310,8 +310,9 @@ GameObject:
   - component: {fileID: 1717001884}
   - component: {fileID: 1717001883}
   - component: {fileID: 1717001891}
+  - component: {fileID: 1717001892}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: Dorito
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -329,7 +330,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d02754a1ea8404449a21a1bdff0fb88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _components: {fileID: 0}
   _stats: {fileID: 11400000, guid: f458f775cf21d244fadbdc89c608243f, type: 2}
 --- !u!212 &1717001884
 SpriteRenderer:
@@ -373,9 +373,9 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
-  m_Color: {r: 1, g: 0.21176471, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.4933104, b: 0, a: 1}
   m_FlipX: 0
-  m_FlipY: 0
+  m_FlipY: 1
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
@@ -410,6 +410,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5509c2d2d7e660f4296e55cc38aa29c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1717001892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1717001882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c444d1db510d2742aca241a344d19a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  obstaclesLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &1941359597
 GameObject:
   m_ObjectHideFlags: 0

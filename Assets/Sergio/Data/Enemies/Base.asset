@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d53f92c3e6e2ac44782e5267959be8cd, type: 3}
   m_Name: Base
   m_EditorClassIdentifier: 
+  Speed: 5
+  TurnSpeed: 120
   Health: 0
   Damage: 0
-  Speed: 5
+  AttackRange: 15
+  VisionAngle: 30
+  VisionRange: 20

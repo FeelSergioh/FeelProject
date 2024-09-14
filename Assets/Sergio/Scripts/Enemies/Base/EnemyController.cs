@@ -11,8 +11,9 @@ public class EnemyController : MonoBehaviour
 	private IEnemyState _currentState;
 
 	public EnemyMovement Movement { get; private set; }
+	public EnemyVision Vision { get; private set; }
 
-	private void Awake()
+	private void Start()
 	{
 		if (_stats == null)
 		{
@@ -21,6 +22,12 @@ public class EnemyController : MonoBehaviour
 		}
 
 		InitializeEnemy();
+	}
+
+	private void Update()
+	{
+		_currentAction?.UpdateAction();
+		_currentState?.Execute();
 	}
 
 	public EnemyStats GetStats() { return _stats; }
@@ -52,6 +59,8 @@ public class EnemyController : MonoBehaviour
 	private void InitializeEnemy()
 	{
 		Movement = GetComponent<EnemyMovement>();
+		Vision = GetComponent<EnemyVision>();
+
 		SetState<PatrollingState>();
 	}
 }
