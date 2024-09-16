@@ -1,26 +1,14 @@
 
 
-public class AttackingState : IEnemyState
+public class AttackingState : EnemyState
 {
-	public EnemyController Controller { get; set; }
-
-	public void Enter(EnemyController controller)
+	public override void Enter(EnemyController controller)
 	{
-		Controller = controller;
-		// Configurar el estado de ataque
+		_controller = controller;
+		_controller.SetAction<ShootAction>();
 	}
 
-	public void Execute()
-	{
-		// Ejecutar el comportamiento de ataque
-		// Si el enemigo pierde al jugador o cumple con alguna condición, cambia de estado
-		// if (/* condición para patrullar */)
-		// {
-		// 	Controller.SetState(Controller.GetComponent<PatrollingState>());
-		// }
-	}
-
-	public void Exit()
+	public override void Exit()
 	{
 		// Limpiar al salir del estado de ataque
 	}

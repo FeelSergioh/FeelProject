@@ -1,17 +1,22 @@
 using System;
+using System.Collections.Generic;
 
 using UnityEngine;
 
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IDamageable
 {
 	[SerializeField] private EnemyStats _stats;
 
-	private IEnemyAction _currentAction;
-	private IEnemyState _currentState;
+	public IEnemyAction CurrentAction { get; private set; }
+	public IEnemyState CurrentState { get; private set; }
 
 	public EnemyMovement Movement { get; private set; }
+	public EnemyShooting Shooting { get; private set; }
 	public EnemyVision Vision { get; private set; }
+
+	private readonly Dictionary<Type, IEnemyAction> _actions = new ();
+	private readonly Dictionary<Type, IEnemyState> _states = new ();
 
 	private void Start()
 	{
@@ -24,43 +29,60 @@ public class EnemyController : MonoBehaviour
 		InitializeEnemy();
 	}
 
-	private void Update()
-	{
-		_currentAction?.UpdateAction();
-		_currentState?.Execute();
-	}
-
 	public EnemyStats GetStats() { return _stats; }
 
-	public void SetState<T>() where T : IEnemyState
+	public void SetState<T>() where T : IEnemyState, new()
 	{
-		var incomingState = Type.GetType(typeof(T).Name);
+		if (!_states.ContainsKey(typeof(T)))
+		{
+			_states[typeof(T)] = new T();
+		}
+
+		var incomingState = _states[typeof(T)];
 		Debug.Log("Setting state: " + incomingState);
 
-		var newState = (IEnemyState)Activator.CreateInstance(incomingState);
-		_currentState?.Exit();
-
-		_currentState = newState;
-		_currentState?.Enter(this);
+		CurrentState?.Exit();
+		CurrentState = incomingState;
+		CurrentState?.Enter(this);
 	}
 
-	public void SetAction<T>() where T : IEnemyAction
+	public void SetAction<T>() where T : IEnemyAction, new()
 	{
-		var incomingAction = Type.GetType(typeof(T).Name);
+		if (!_actions.ContainsKey(typeof(T)))
+		{
+			_actions[typeof(T)] = new T();
+		}
+
+		var incomingAction = _actions[typeof(T)];
 		Debug.Log("Setting action: " + incomingAction);
 
-		var newAction = (IEnemyAction)Activator.CreateInstance(incomingAction);
-		_currentAction?.EndAction();
-
-		_currentAction = newAction;
-		_currentAction?.StartAction(this);
+		CurrentAction?.EndAction();
+		CurrentAction = incomingAction;
+		CurrentAction?.StartAction(this);
 	}
 
 	private void InitializeEnemy()
 	{
 		Movement = GetComponent<EnemyMovement>();
+		Shooting = GetComponent<EnemyShooting>();
 		Vision = GetComponent<EnemyVision>();
 
 		SetState<PatrollingState>();
+	}
+
+	public void TakeDamage(float amount)
+	{
+		_stats.Health -= amount;
+		if (_stats.Health <= 0)
+		{
+			Die();
+		}
+	}
+
+	private void Die()
+	{
+		// Lógica para la muerte del enemigo
+		Debug.Log("Enemy died", gameObject);
+		Destroy(gameObject);
 	}
 }

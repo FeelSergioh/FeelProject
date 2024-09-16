@@ -1,44 +1,58 @@
+using System;
+using System.Threading;
 
 using UnityEngine;
 
 using Cysharp.Threading.Tasks;
 
 
-public class WatchAction : IEnemyAction
+public class WatchAction : EnemyAction
 {
-    public EnemyController Controller { get; set; }
+	private CancellationTokenSource _cancellationTokenSource;
 
-	public void StartAction(EnemyController controller)
+	public override void StartAction(EnemyController controller)
 	{
-		Controller = controller;
-		if (Controller.Vision.CanSeePlayer())
+		_controller = controller;
+		_cancellationTokenSource = new CancellationTokenSource();
+
+		if (_controller.Vision.CanSeePlayer())
 		{
-			Controller.SetState<AttackingState>();
+			_controller.SetState<AttackingState>();
 			return;
 		}
 
 		Debug.Log("Player not found, watching...");
-		UniTask.Void(async () =>
-		{
-			// Look around for a few seconds
-			await UniTask.Delay(200);
-			await Controller.Movement.RotateTowards(Controller.transform.position + new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f), 0));
-			await UniTask.Delay(200);
-			await Controller.Movement.RotateTowards(Controller.transform.position + new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f), 0));
-			await UniTask.Delay(500);
-
-			// Move to a random position
-			Controller.SetAction<MoveAction>();
-		});
+		PerformWatchAsync(_cancellationTokenSource.Token).Forget();
 	}
 
-	public void UpdateAction()
+	private async UniTaskVoid PerformWatchAsync(CancellationToken token)
 	{
-		
+		try
+		{
+			// Realizar rotación condicional
+			if (_controller.Vision.LastKnownPlayerPosition != Vector2.zero)
+			{
+				await _controller.Movement.RotateTowards(_controller.Vision.LastKnownPlayerPosition, token);
+			}
+			else
+			{
+				await _controller.Movement.LookAround(200, token);
+				await _controller.Movement.LookAround(200, token);
+			}
+
+			// Retraso antes de moverse
+			await UniTask.Delay(500, cancellationToken: token);
+			_controller.SetAction<MoveAction>();
+		}
+		catch (OperationCanceledException)
+		{
+			Debug.Log("Watch action cancelled.");
+		}
 	}
 
-	public void EndAction()
+	public override void EndAction()
 	{
 		// Finalizar la acción de movimiento
+		_cancellationTokenSource?.Cancel();
 	}
 }

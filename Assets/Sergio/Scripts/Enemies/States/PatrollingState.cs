@@ -1,27 +1,25 @@
 
+using UnityEngine;
 
-public class PatrollingState : IEnemyState
+
+public class PatrollingState : EnemyState
 {
-	public EnemyController Controller { get; set; }
-
-	public void Enter(EnemyController controller)
+	public override void Enter(EnemyController controller)
 	{
-		Controller = controller;
-		Controller.SetAction<MoveAction>();
+		_controller = controller;
+		_controller.Vision.OnPlayerSeen += OnSeenPlayer;
+		_controller.SetAction<MoveAction>();
 	}
 
-	public void Execute()
+	private void OnSeenPlayer()
 	{
-		// Ejecutar el comportamiento de patrullaje
-		// Si detecta al jugador o cumple con alguna condición, cambia de estado
-		// if (/* condición para atacar */)
-		// {
-		// 	Controller.SetState(Controller.GetComponent<AttackingState>());
-		// }
+		Debug.Log("Player seen, switching to AttackingState...");
+		_controller.SetState<AttackingState>();
 	}
 
-	public void Exit()
+	public override void Exit()
 	{
 		// Limpiar al salir del estado de patrullaje
+		_controller.Vision.OnPlayerSeen -= OnSeenPlayer;
 	}
 }

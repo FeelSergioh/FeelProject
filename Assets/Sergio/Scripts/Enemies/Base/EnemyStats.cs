@@ -9,6 +9,7 @@ public class EnemyStats : ScriptableObject
     public float Health;
     public float Damage;
     public float AttackRange;
+    public float AttackCooldown;
     public float VisionAngle;
     public float VisionRange;
 }

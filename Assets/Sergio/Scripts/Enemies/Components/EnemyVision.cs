@@ -1,3 +1,5 @@
+using System;
+
 using UnityEngine;
 
 
@@ -5,10 +7,17 @@ public class EnemyVision : EnemyComponent
 {
 	[SerializeField] private LayerMask obstaclesLayer;
 
+	public Vector2 LastKnownPlayerPosition { get; private set; }
+	public event Action OnPlayerSeen;
+
 	public bool CanSeePlayer()
 	{
 		var player = GameObject.FindWithTag("Player");
-		if (player == null) return false;
+		if (player == null)
+		{
+			LastKnownPlayerPosition = Vector2.zero;
+			return false;
+		}
 
 		Vector2 directionToPlayer = player.transform.position - transform.position;
 		float angleToPlayer = Vector2.Angle(transform.up, directionToPlayer);
@@ -20,10 +29,13 @@ public class EnemyVision : EnemyComponent
 			if (hit.collider == null || hit.collider.transform == player)
 			{
 				Debug.Log("Player in sight");
+				LastKnownPlayerPosition = player.transform.position;
+				OnPlayerSeen?.Invoke();
 				return true; // El jugador está dentro de la visión
 			}
 		}
 
+		LastKnownPlayerPosition = Vector2.zero;
 		return false; // No puede ver al jugador
 	}
 

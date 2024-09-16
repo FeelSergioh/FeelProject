@@ -1,31 +1,38 @@
 using UnityEngine;
 
 
-public class MoveAction : IEnemyAction
+public class MoveAction : EnemyAction
 {
-	public EnemyController Controller { get; set; }
-
-	public void StartAction(EnemyController controller)
+	public override void StartAction(EnemyController controller)
 	{
-		Controller = controller;
+		_controller = controller;
+		_controller.Movement.OnDestinationReached += OnReachedDestination;
+
 		// Get the target position
-		Vector2 targetPosition = new (Random.Range(-5f, 5f), Random.Range(-5f, 5f));
+		Vector2 targetPosition;
+		if (_controller.Vision.LastKnownPlayerPosition != Vector2.zero)
+		{
+			targetPosition = _controller.Vision.LastKnownPlayerPosition;
+		}
+		else
+		{
+			targetPosition = new Vector2(Random.Range(-5f, 5f), Random.Range(-5f, 5f));
+		}
 
 		// Move to the target position
-		Controller.Movement.MoveTo(targetPosition);
+		_controller.Movement.MoveTo(targetPosition);
 	}
 
-	public void UpdateAction()
+	private void OnReachedDestination()
 	{
-		// Check for any movement updates
-		if (Controller.Movement.ReachedDestination)
-		{
-			Controller.SetAction<WatchAction>();
-		}
+		Debug.Log("Destination reached, switching to WatchAction...");
+		_controller.SetAction<WatchAction>();
 	}
 
-	public void EndAction()
+	public override void EndAction()
 	{
 		// Finalizar la acción de movimiento
+		_controller.Movement.OnDestinationReached -= OnReachedDestination;
+		_controller.Movement.StopMovement();
 	}
 }
